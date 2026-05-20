@@ -14,7 +14,9 @@
   const statusEl = document.getElementById("form-status");
   const tokenStatusEl = document.getElementById("token-status");
   const eventoErr = document.getElementById("evento-error");
-  const sink = document.getElementById("gforms_sink");
+  const successCard = document.getElementById("success-card");
+  const successDetail = document.getElementById("success-detail");
+  const successAccount = document.getElementById("success-account");
 
   const params = new URLSearchParams(location.search);
   const token = params.get("t");
@@ -165,85 +167,49 @@
     }
 
     submitBtn.disabled = true;
-    statusEl.removeAttribute("data-state");
-    statusEl.textContent = "Enviando...";
+    submitBtn.textContent = "Enviando...";
 
     try {
       await submitToGoogleForm(verifiedEmail, evento);
-      statusEl.dataset.state = "ok";
-      statusEl.textContent = 'Fichaste "' + evento + '" correctamente.';
-      form.reset();
+      form.hidden = true;
+      signinCard.hidden = true;
+      successDetail.textContent = evento;
+      successAccount.textContent = verifiedEmail;
+      successCard.hidden = false;
+      successCard.scrollIntoView({ behavior: "smooth", block: "center" });
     } catch (err) {
       statusEl.dataset.state = "error";
       statusEl.textContent =
         "No se pudo enviar la fichada. Reintenta en unos segundos.";
+      statusEl.scrollIntoView({ behavior: "smooth", block: "center" });
     } finally {
       submitBtn.disabled = false;
+      submitBtn.textContent = "Enviar";
     }
   }
 
   function submitToGoogleForm(email, evento) {
-    return new Promise(function (resolve, reject) {
-      if (
-        !cfg.eventoEntryId ||
-        cfg.eventoEntryId.indexOf("REEMPLAZAR") !== -1
-      ) {
-        reject(new Error("eventoEntryId no configurado"));
-        return;
-      }
-      if (
-        cfg.emailMode === "entry" &&
-        (!cfg.emailEntryId || cfg.emailEntryId.indexOf("REEMPLAZAR") !== -1)
-      ) {
-        reject(new Error("emailEntryId no configurado"));
-        return;
-      }
+    if (!cfg.eventoEntryId || cfg.eventoEntryId.indexOf("REEMPLAZAR") !== -1) {
+      return Promise.reject(new Error("eventoEntryId no configurado"));
+    }
 
-      const ghost = document.createElement("form");
-      ghost.action = cfg.formActionUrl;
-      ghost.method = "POST";
-      ghost.target = "gforms_sink";
-      ghost.style.display = "none";
+    const body = new URLSearchParams();
+    body.append(cfg.eventoEntryId, evento);
+    if (cfg.emailMode === "entry") {
+      body.append(cfg.emailEntryId, email);
+    } else {
+      body.append("emailAddress", email);
+    }
+    body.append("fvv", "1");
+    body.append("draftResponse", "[]");
+    body.append("pageHistory", "0");
 
-      addHidden(ghost, cfg.eventoEntryId, evento);
-      if (cfg.emailMode === "entry") {
-        addHidden(ghost, cfg.emailEntryId, email);
-      } else {
-        addHidden(ghost, "emailAddress", email);
-      }
-      addHidden(ghost, "fvv", "1");
-      addHidden(ghost, "draftResponse", "[]");
-      addHidden(ghost, "pageHistory", "0");
-
-      document.body.appendChild(ghost);
-
-      let settled = false;
-      const onLoad = function () {
-        if (settled) return;
-        settled = true;
-        sink.removeEventListener("load", onLoad);
-        ghost.remove();
-        resolve();
-      };
-      sink.addEventListener("load", onLoad);
-      ghost.submit();
-
-      setTimeout(function () {
-        if (settled) return;
-        settled = true;
-        sink.removeEventListener("load", onLoad);
-        ghost.remove();
-        reject(new Error("timeout"));
-      }, 8000);
+    return fetch(cfg.formActionUrl, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: body.toString(),
     });
-  }
-
-  function addHidden(formEl, name, value) {
-    const inp = document.createElement("input");
-    inp.type = "hidden";
-    inp.name = name;
-    inp.value = value;
-    formEl.appendChild(inp);
   }
 
   function parseJwt(t) {

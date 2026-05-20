@@ -90,14 +90,21 @@
         <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
       </form>
 
+      <article class="form-card form-card--success" id="success-card" hidden>
+        <div class="form-card__body success-body">
+          <div class="success-icon" aria-hidden="true">✓</div>
+          <h2 class="success-title">Fichada registrada</h2>
+          <p class="success-detail" id="success-detail"></p>
+          <p class="success-account" id="success-account"></p>
+        </div>
+      </article>
+
       <p class="form-status form-status--banner" id="token-status" role="status" aria-live="polite" hidden></p>
 
       <footer class="form-footer">
         <p>Este contenido se reenvía al formulario original de Google.</p>
       </footer>
     </main>
-
-    <iframe name="gforms_sink" id="gforms_sink" title="sink" hidden></iframe>
 
     <script>
       (function () {
