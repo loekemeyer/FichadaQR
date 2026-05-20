@@ -179,6 +179,9 @@
       successAccount.textContent = verifiedEmail;
       successCard.hidden = false;
       successCard.scrollIntoView({ behavior: "smooth", block: "center" });
+      setTimeout(function () {
+        location.replace("https://loekemeyer.github.io/FichadaQR/");
+      }, 2000);
     } catch (err) {
       statusEl.dataset.state = "error";
       statusEl.textContent =
