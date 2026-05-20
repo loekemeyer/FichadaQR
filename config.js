@@ -11,7 +11,7 @@ window.FICHADA_CONFIG = {
   // elegi "Entrada", copia el enlace. Vas a ver algo como:
   //   .../formResponse?entry.123456789=Entrada
   // El numero despues de "entry." es el valor que va aca.
-  eventoEntryId: "entry.REEMPLAZAR_EVENTO_ID",
+  eventoEntryId: "entry.1604904801",
 
   // Modo de envio del correo electronico:
   //   "emailAddress" -> Form configurado con "Recolectar correos -> Entrada del responder".
