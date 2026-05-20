@@ -29,7 +29,7 @@ window.FICHADA_CONFIG = {
   // Quien lo lea puede generar tokens validos desde cualquier red.
   // Es un disuasivo, no una barrera criptografica.
   // Reemplazar por una cadena propia, larga y aleatoria (32+ caracteres).
-  hmacSecret: "CAMBIAR-ESTE-SECRETO-LARGO-Y-ALEATORIO-1234567890abcdef",
+  hmacSecret: "cervantes2868",
 
   // Duracion de cada token en segundos. Mas corto = mas seguro, pero exige relojes sincronizados.
   tokenPeriodSec: 30,
