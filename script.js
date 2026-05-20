@@ -12,6 +12,7 @@
   const submitBtn = document.getElementById("submit-btn");
   const clearBtn = document.getElementById("clear-btn");
   const statusEl = document.getElementById("form-status");
+  const tokenStatusEl = document.getElementById("token-status");
   const eventoErr = document.getElementById("evento-error");
   const sink = document.getElementById("gforms_sink");
 
@@ -42,11 +43,11 @@
   function showInvalidToken() {
     signinCard.hidden = true;
     form.hidden = true;
-    statusEl.dataset.state = "error";
-    statusEl.classList.add("form-status--banner");
-    statusEl.textContent = token
-      ? "El codigo QR expiro. Volve a escanear el QR de la pantalla de fichada."
-      : "Esta pagina solo es accesible escaneando el QR de fichada de la sede.";
+    tokenStatusEl.hidden = false;
+    tokenStatusEl.dataset.state = "error";
+    tokenStatusEl.textContent = token
+      ? "El código QR expiró. Volvé a escanear el QR de la pantalla de fichada."
+      : "Esta página solo es accesible escaneando el QR de fichada de la sede.";
   }
 
   function waitForGisAndInit(retries) {

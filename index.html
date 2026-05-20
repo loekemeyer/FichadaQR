@@ -90,6 +90,8 @@
         <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
       </form>
 
+      <p class="form-status form-status--banner" id="token-status" role="status" aria-live="polite" hidden></p>
+
       <footer class="form-footer">
         <p>Este contenido se reenvía al formulario original de Google.</p>
       </footer>
@@ -104,7 +106,7 @@
         document.getElementById(hasToken ? "form-view" : "qr-view").hidden = false;
       })();
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js" crossorigin="anonymous"></script>
+    <script src="qrcode.min.js"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="config.js"></script>
     <script src="totp.js"></script>
