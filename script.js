@@ -53,7 +53,7 @@
   }
 
   function waitForGisAndInit(retries) {
-    retries = retries == null ? 50 : retries;
+    retries = retries == null ? 120 : retries;
     if (typeof google !== "undefined" && google.accounts && google.accounts.id) {
       try {
         google.accounts.id.initialize({
@@ -99,6 +99,7 @@
       userEmailLbl.textContent = verifiedEmail;
       changeAccountBtn.hidden = false;
       signinCard.hidden = true;
+      successCard.hidden = true;
       form.hidden = false;
       statusEl.textContent = "";
       statusEl.removeAttribute("data-state");
@@ -119,6 +120,7 @@
     userEmailLbl.textContent = "No iniciaste sesión";
     changeAccountBtn.hidden = true;
     form.hidden = true;
+    successCard.hidden = true;
     signinCard.hidden = false;
     signinStatus.textContent = "";
     signinStatus.removeAttribute("data-state");

@@ -39,7 +39,7 @@ window.FICHADA_CONFIG = {
   hmacSecret: "cervantes2868",
 
   // Duracion de cada token en segundos. Mas corto = mas seguro, pero exige relojes sincronizados.
-  tokenPeriodSec: 30,
+  tokenPeriodSec: 60,
 
   // Cuantas ventanas hacia atras/adelante se aceptan (cubre desincronizacion de reloj).
   // 1 = se acepta el bucket actual, el anterior y el siguiente.
