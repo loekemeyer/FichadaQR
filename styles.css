@@ -229,11 +229,25 @@ body {
   border: 0;
 }
 
-.qr-page {
+body.page-qr {
   background: #0b8043;
   color: #fff;
   min-height: 100vh;
   margin: 0;
+}
+
+.signin-btn {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+#change-account {
+  margin-left: 8px;
+}
+
+#user-email {
+  font-weight: 500;
 }
 
 .qr-stage {

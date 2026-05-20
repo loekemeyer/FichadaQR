@@ -24,6 +24,13 @@ window.FICHADA_CONFIG = {
   // Obtener el ID con el mismo metodo de "Obtener enlace prerellenado".
   emailEntryId: "entry.REEMPLAZAR_EMAIL_ID",
 
+  // OAuth Client ID de Google (tipo "Web application").
+  // Crear en https://console.cloud.google.com/apis/credentials.
+  // En "Authorized JavaScript origins" agregar el dominio del deploy
+  // (por ej. https://loekemeyer.github.io) y http://localhost:8765 para dev.
+  googleClientId:
+    "1066654155464-fvlk97in20htbt81tpinkof5litot3j7.apps.googleusercontent.com",
+
   // Secreto compartido entre qr.html (pantalla de sede) y index.html (fichada).
   // ADVERTENCIA: este valor queda visible en el JS publico de ambas paginas.
   // Quien lo lea puede generar tokens validos desde cualquier red.

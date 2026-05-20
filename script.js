@@ -4,19 +4,21 @@
   const { verifyToken } = window.FichadaToken;
 
   const form = document.getElementById("fichada-form");
-  const emailInput = document.getElementById("email-input");
-  const rememberCb = document.getElementById("remember-email");
+  const signinCard = document.getElementById("signin-card");
+  const signinBtnHost = document.getElementById("google-signin-btn");
+  const signinStatus = document.getElementById("signin-status");
   const userEmailLbl = document.getElementById("user-email");
   const changeAccountBtn = document.getElementById("change-account");
   const submitBtn = document.getElementById("submit-btn");
   const clearBtn = document.getElementById("clear-btn");
   const statusEl = document.getElementById("form-status");
-  const emailErr = document.getElementById("email-error");
   const eventoErr = document.getElementById("evento-error");
   const sink = document.getElementById("gforms_sink");
 
   const params = new URLSearchParams(location.search);
   const token = params.get("t");
+
+  let verifiedEmail = null;
 
   init();
 
@@ -33,11 +35,12 @@
       showInvalidToken();
       return;
     }
-    setupEmailMemory();
     wireUp();
+    waitForGisAndInit();
   }
 
   function showInvalidToken() {
+    signinCard.hidden = true;
     form.hidden = true;
     statusEl.dataset.state = "error";
     statusEl.classList.add("form-status--banner");
@@ -46,53 +49,102 @@
       : "Esta pagina solo es accesible escaneando el QR de fichada de la sede.";
   }
 
-  function setupEmailMemory() {
-    const saved = localStorage.getItem("fichada.email");
-    if (saved) {
-      emailInput.value = saved;
-      userEmailLbl.textContent = saved;
-      rememberCb.checked = true;
-    } else {
-      userEmailLbl.textContent = "(sin correo)";
+  function waitForGisAndInit(retries) {
+    retries = retries == null ? 50 : retries;
+    if (typeof google !== "undefined" && google.accounts && google.accounts.id) {
+      try {
+        google.accounts.id.initialize({
+          client_id: cfg.googleClientId,
+          callback: onCredential,
+          auto_select: false,
+          cancel_on_tap_outside: false,
+        });
+        google.accounts.id.renderButton(signinBtnHost, {
+          type: "standard",
+          theme: "outline",
+          size: "large",
+          text: "signin_with",
+          shape: "rectangular",
+          locale: "es",
+          width: 260,
+        });
+      } catch (err) {
+        signinStatus.dataset.state = "error";
+        signinStatus.textContent =
+          "No se pudo inicializar Google Sign-In: " + err.message;
+      }
+      return;
     }
-    emailInput.addEventListener("input", () => {
-      const v = emailInput.value.trim();
-      userEmailLbl.textContent = v || "(sin correo)";
-    });
-    changeAccountBtn.addEventListener("click", () => {
-      localStorage.removeItem("fichada.email");
-      emailInput.value = "";
-      userEmailLbl.textContent = "(sin correo)";
-      rememberCb.checked = false;
-      emailInput.focus();
-    });
+    if (retries <= 0) {
+      signinStatus.dataset.state = "error";
+      signinStatus.textContent =
+        "No se pudo cargar Google Sign-In. Revisa la conexión.";
+      return;
+    }
+    setTimeout(function () {
+      waitForGisAndInit(retries - 1);
+    }, 100);
+  }
+
+  function onCredential(response) {
+    try {
+      const payload = parseJwt(response.credential);
+      if (!payload.email || payload.email_verified === false) {
+        throw new Error("Cuenta sin correo verificado.");
+      }
+      verifiedEmail = payload.email;
+      userEmailLbl.textContent = verifiedEmail;
+      changeAccountBtn.hidden = false;
+      signinCard.hidden = true;
+      form.hidden = false;
+      statusEl.textContent = "";
+      statusEl.removeAttribute("data-state");
+    } catch (err) {
+      signinStatus.dataset.state = "error";
+      signinStatus.textContent =
+        "No se pudo procesar el inicio de sesión: " + err.message;
+    }
+  }
+
+  function onChangeAccount() {
+    try {
+      if (typeof google !== "undefined" && google.accounts && google.accounts.id) {
+        google.accounts.id.disableAutoSelect();
+      }
+    } catch (_) {}
+    verifiedEmail = null;
+    userEmailLbl.textContent = "No iniciaste sesión";
+    changeAccountBtn.hidden = true;
+    form.hidden = true;
+    signinCard.hidden = false;
+    signinStatus.textContent = "";
+    signinStatus.removeAttribute("data-state");
   }
 
   function wireUp() {
     form.addEventListener("submit", onSubmit);
-    clearBtn.addEventListener("click", () => {
+    clearBtn.addEventListener("click", function () {
       form.reset();
-      emailErr.hidden = true;
       eventoErr.hidden = true;
       statusEl.textContent = "";
       statusEl.removeAttribute("data-state");
     });
+    changeAccountBtn.addEventListener("click", onChangeAccount);
   }
 
   async function onSubmit(e) {
     e.preventDefault();
-    emailErr.hidden = true;
     eventoErr.hidden = true;
 
-    const email = emailInput.value.trim();
-    const eventoEl = form.querySelector('input[name="evento"]:checked');
-    const evento = eventoEl ? eventoEl.value : "";
-
-    if (!isEmail(email)) {
-      emailErr.hidden = false;
-      emailInput.focus();
+    if (!verifiedEmail) {
+      statusEl.dataset.state = "error";
+      statusEl.textContent =
+        "Tenés que iniciar sesión con Google antes de fichar.";
       return;
     }
+
+    const eventoEl = form.querySelector('input[name="evento"]:checked');
+    const evento = eventoEl ? eventoEl.value : "";
     if (!evento) {
       eventoErr.hidden = false;
       return;
@@ -111,21 +163,15 @@
       return;
     }
 
-    if (rememberCb.checked) {
-      localStorage.setItem("fichada.email", email);
-    } else {
-      localStorage.removeItem("fichada.email");
-    }
-
     submitBtn.disabled = true;
     statusEl.removeAttribute("data-state");
     statusEl.textContent = "Enviando...";
 
     try {
-      await submitToGoogleForm(email, evento);
+      await submitToGoogleForm(verifiedEmail, evento);
       statusEl.dataset.state = "ok";
       statusEl.textContent = 'Fichaste "' + evento + '" correctamente.';
-      resetAfterSuccess();
+      form.reset();
     } catch (err) {
       statusEl.dataset.state = "error";
       statusEl.textContent =
@@ -136,7 +182,7 @@
   }
 
   function submitToGoogleForm(email, evento) {
-    return new Promise((resolve, reject) => {
+    return new Promise(function (resolve, reject) {
       if (
         !cfg.eventoEntryId ||
         cfg.eventoEntryId.indexOf("REEMPLAZAR") !== -1
@@ -171,7 +217,7 @@
       document.body.appendChild(ghost);
 
       let settled = false;
-      const onLoad = () => {
+      const onLoad = function () {
         if (settled) return;
         settled = true;
         sink.removeEventListener("load", onLoad);
@@ -181,7 +227,7 @@
       sink.addEventListener("load", onLoad);
       ghost.submit();
 
-      setTimeout(() => {
+      setTimeout(function () {
         if (settled) return;
         settled = true;
         sink.removeEventListener("load", onLoad);
@@ -189,18 +235,6 @@
         reject(new Error("timeout"));
       }, 8000);
     });
-  }
-
-  function resetAfterSuccess() {
-    form.reset();
-    const saved = localStorage.getItem("fichada.email");
-    if (saved) {
-      emailInput.value = saved;
-      rememberCb.checked = true;
-      userEmailLbl.textContent = saved;
-    } else {
-      userEmailLbl.textContent = "(sin correo)";
-    }
   }
 
   function addHidden(formEl, name, value) {
@@ -211,7 +245,17 @@
     formEl.appendChild(inp);
   }
 
-  function isEmail(s) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
+  function parseJwt(t) {
+    const base64Url = t.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const json = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map(function (c) {
+          return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+        })
+        .join("")
+    );
+    return JSON.parse(json);
   }
 })();

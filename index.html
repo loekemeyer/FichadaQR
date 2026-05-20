@@ -33,34 +33,22 @@
         <div class="form-card__body">
           <h1 class="form-title">Registro de entradas-salidas Esnaola</h1>
           <p class="form-account">
-            <span id="user-email">no-iniciado@correo.com</span>
-            <button type="button" id="change-account" class="link">Cambiar de cuenta</button>
+            <span id="user-email">No iniciaste sesión</span>
+            <button type="button" id="change-account" class="link" hidden>Cambiar de cuenta</button>
           </p>
           <p class="form-required-note">* Indica que la pregunta es obligatoria</p>
         </div>
       </article>
 
-      <form id="fichada-form" autocomplete="off" novalidate>
-        <article class="form-card">
-          <div class="form-card__body">
-            <label class="question-label" for="email-input">
-              Correo electrónico <span class="req">*</span>
-            </label>
-            <input
-              id="email-input"
-              type="email"
-              class="text-input"
-              placeholder="tu.correo@ejemplo.com"
-              required
-            />
-            <label class="checkbox-row">
-              <input type="checkbox" id="remember-email" />
-              <span>Recordar este correo en este dispositivo</span>
-            </label>
-            <p class="error-msg" id="email-error" hidden>Ingresá un correo válido.</p>
-          </div>
-        </article>
+      <article class="form-card" id="signin-card">
+        <div class="form-card__body">
+          <p class="question-label">Identificate con tu cuenta de Google para fichar</p>
+          <div id="google-signin-btn" class="signin-btn"></div>
+          <p class="form-status" id="signin-status" role="status" aria-live="polite"></p>
+        </div>
+      </article>
 
+      <form id="fichada-form" autocomplete="off" novalidate hidden>
         <article class="form-card">
           <div class="form-card__body">
             <p class="question-label">Evento <span class="req">*</span></p>
@@ -117,6 +105,7 @@
       })();
     </script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js" crossorigin="anonymous"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="config.js"></script>
     <script src="totp.js"></script>
     <script src="qr.js"></script>
