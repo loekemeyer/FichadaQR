@@ -180,7 +180,7 @@
       successCard.hidden = false;
       successCard.scrollIntoView({ behavior: "smooth", block: "center" });
       setTimeout(function () {
-        location.replace("https://loekemeyer.github.io/FichadaQR/");
+        location.replace(location.pathname + "?done=" + encodeURIComponent(evento));
       }, 2000);
     } catch (err) {
       statusEl.dataset.state = "error";

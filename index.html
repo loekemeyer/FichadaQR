@@ -106,15 +106,50 @@
       </footer>
     </main>
 
+    <main class="farewell-stage" id="farewell-view" hidden>
+      <div class="farewell-icon" aria-hidden="true">✓</div>
+      <h1 class="farewell-title">Fichada registrada</h1>
+      <p class="farewell-message" id="farewell-message"></p>
+    </main>
+
     <script>
       (function () {
-        var hasToken = new URLSearchParams(location.search).has("t");
-        var keep = hasToken ? "form-view" : "qr-view";
-        var drop = hasToken ? "qr-view" : "form-view";
-        document.body.classList.add(hasToken ? "page-form" : "page-qr");
-        var dropEl = document.getElementById(drop);
-        if (dropEl) dropEl.parentNode.removeChild(dropEl);
+        var params = new URLSearchParams(location.search);
+        var hasToken = params.has("t");
+        var doneEvent = params.get("done");
+
+        var keep, dropIds, bodyClass;
+        if (doneEvent) {
+          keep = "farewell-view";
+          dropIds = ["qr-view", "form-view"];
+          bodyClass = "page-farewell";
+        } else if (hasToken) {
+          keep = "form-view";
+          dropIds = ["qr-view", "farewell-view"];
+          bodyClass = "page-form";
+        } else {
+          keep = "qr-view";
+          dropIds = ["form-view", "farewell-view"];
+          bodyClass = "page-qr";
+        }
+
+        document.body.classList.add(bodyClass);
+        dropIds.forEach(function (id) {
+          var el = document.getElementById(id);
+          if (el) el.parentNode.removeChild(el);
+        });
         document.getElementById(keep).hidden = false;
+
+        if (doneEvent) {
+          var msgs = {
+            "Entrada": "¡Que tengas una excelente jornada!",
+            "Comida Inicia": "¡Buen provecho!",
+            "Comida Termina": "Ya falta poco para terminar el día.",
+            "Salida": "Ha sido un día maravilloso, muchas gracias por tu compromiso y entrega."
+          };
+          var msgEl = document.getElementById("farewell-message");
+          if (msgEl) msgEl.textContent = msgs[doneEvent] || "";
+        }
 
         function addScript(src, isAsync) {
           var s = document.createElement("script");
