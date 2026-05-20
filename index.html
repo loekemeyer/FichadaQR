@@ -7,7 +7,27 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <main class="form-wrap">
+    <main class="qr-stage" id="qr-view" hidden>
+      <h1 class="qr-title">Fichada Esnaola</h1>
+      <p class="qr-sub">Escaneá el QR con tu celular para fichar</p>
+
+      <div class="qr-frame" id="qr-frame">
+        <canvas id="qr-canvas" width="320" height="320" aria-label="Codigo QR de fichada"></canvas>
+      </div>
+
+      <div class="qr-meta">
+        <div class="qr-bar">
+          <div class="qr-bar__fill" id="qr-bar-fill"></div>
+        </div>
+        <div class="qr-countdown">
+          Próximo código en <strong id="qr-secs">--</strong> s
+        </div>
+      </div>
+
+      <p class="qr-warn" id="qr-warn" hidden></p>
+    </main>
+
+    <main class="form-wrap" id="form-view" hidden>
       <article class="form-card form-card--title">
         <div class="form-card__accent"></div>
         <div class="form-card__body">
@@ -88,8 +108,18 @@
     </main>
 
     <iframe name="gforms_sink" id="gforms_sink" title="sink" hidden></iframe>
+
+    <script>
+      (function () {
+        var hasToken = new URLSearchParams(location.search).has("t");
+        document.body.classList.add(hasToken ? "page-form" : "page-qr");
+        document.getElementById(hasToken ? "form-view" : "qr-view").hidden = false;
+      })();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js" crossorigin="anonymous"></script>
     <script src="config.js"></script>
     <script src="totp.js"></script>
+    <script src="qr.js"></script>
     <script src="script.js"></script>
   </body>
 </html>

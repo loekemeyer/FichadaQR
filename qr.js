@@ -1,4 +1,5 @@
 (function () {
+  if (!document.body.classList.contains("page-qr")) return;
   const cfg = window.FICHADA_CONFIG;
   const { buildToken, secondsUntilNextBucket } = window.FichadaToken;
   const canvas = document.getElementById("qr-canvas");

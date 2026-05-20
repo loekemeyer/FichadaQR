@@ -1,4 +1,5 @@
 (function () {
+  if (!document.body.classList.contains("page-form")) return;
   const cfg = window.FICHADA_CONFIG;
   const { verifyToken } = window.FichadaToken;
 
