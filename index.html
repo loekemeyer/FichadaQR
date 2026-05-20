@@ -102,8 +102,12 @@
     <script>
       (function () {
         var hasToken = new URLSearchParams(location.search).has("t");
+        var keep = hasToken ? "form-view" : "qr-view";
+        var drop = hasToken ? "qr-view" : "form-view";
         document.body.classList.add(hasToken ? "page-form" : "page-qr");
-        document.getElementById(hasToken ? "form-view" : "qr-view").hidden = false;
+        var dropEl = document.getElementById(drop);
+        if (dropEl) dropEl.parentNode.removeChild(dropEl);
+        document.getElementById(keep).hidden = false;
       })();
     </script>
     <script src="qrcode.min.js"></script>
